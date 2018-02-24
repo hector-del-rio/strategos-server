@@ -1,0 +1,39 @@
+version: '3.0'
+services:
+
+  strategos:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: strategos
+    restart: always
+    volumes:
+      - .:/var/www
+      - "${STRATEGOS_CERTS}:/certs"
+    ports:
+      - "${STRATEGOS_PORT:-80}:80"
+    environment:
+      - DB_HOST=strategos_db
+      - DB_USER=strategos
+      - DB_PASSWORD=strategos
+      - DB_NAME=strategos
+    networks:
+      - db
+
+  strategos_db:
+    image: mariadb:10.3.4
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --init-connect='SET NAMES UTF8;'
+    ports:
+      - 3336:3306
+    container_name: strategos_db
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=strategos
+      - MYSQL_USER=strategos
+      - MYSQL_PASSWORD=strategos
+    networks:
+      - db
+
+networks:
+  db:
