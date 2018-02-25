@@ -8,15 +8,31 @@ import {mac as macSanitizer} from "./middleware/sanitizer";
 import findClient from "./middleware/clientFinder";
 import {logError, logException} from "./errorHandler";
 import knex from "./knex";
+import {execSync} from "child_process";
 
-const {log} = console;
+const {log, error} = console;
+const keyPath = '/certs/server_key.pem';
+const certPath = '/certs/server_cert.pem';
+
+if (!fs.existsSync(keyPath) || !fs.existsSync(certPath)) {
+    try {
+        execSync(`sh ${__dirname}/../scripts/make-certs.sh`, {stdio: [0, 1, 2]});
+    } catch (err) {
+        error(err);
+        process.exit()
+    }
+}
+
+const serverKey = fs.readFileSync(keyPath);
+const serverCert = fs.readFileSync(certPath);
+
 const server = https.createServer(
     {
-        key: fs.readFileSync('/certs/server_key.pem'),
-        cert: fs.readFileSync('/certs/server_cert.pem'),
-        ca: fs.readFileSync('/certs/server_cert.pem'),
+        key: serverKey,
+        cert: serverCert,
+        ca: serverCert,
         requestCert: true,
-        rejectUnauthorized: true
+        rejectUnauthorized: true,
     },
     express()
 );
@@ -78,7 +94,7 @@ function queryTasks() {
                     }
 
                     if (typeof sockets[client.id] === 'undefined') {
-                        // Client not connected
+                        // Client went offline while query was running
                         return;
                     }
 
@@ -97,5 +113,5 @@ function queryTasks() {
         .catch(logException)
 }
 
-// TODO: mysql-events instead of interval?
+// TODO: mysql-events instead of setInterval?
 setInterval(queryTasks, 2000);
