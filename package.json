@@ -12,11 +12,12 @@
         "socket.io": "^2.0.4"
     },
     "scripts": {
-        "migrate": "knex migrate:latest",
-        "migrate:down": "knex migrate:rollback",
-        "migrate:history": "knex migrate:currentVersion",
+        "migrate": "docker exec strategos yarn run knex migrate:latest",
+        "migrate:down": "docker exec strategos yarn run knex migrate:rollback",
+        "migrate:history": "docker exec strategos yarn run knex migrate:currentVersion",
+        "make-certs": "docker exec strategos sh scripts/make-certs.sh",
         "babel-node": "babel-node --presets=latest",
-        "start": "nodemon --exec npm run babel-node -- ./src/index.js",
+        "start": "nodemon --exec yarn run babel-node -- ./src/index.js",
         "build": "babel src -d dist"
     },
     "babel": {
