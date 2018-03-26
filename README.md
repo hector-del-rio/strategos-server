@@ -28,11 +28,8 @@ The project consist of a [server](https://github.com/hector-del-rio/strategos-se
 
 ## Requirements
 
-TBD
-
-## How it works
-
-TBD
+- Although not required per se, using [Docker](https://www.docker.com/get-docker) is highly recommended as it's the easiest way to get started.
+- Each client must present a client certificate to the server to be authenticated. Read more in the section below *How to generate a client certificate*.
 
 ## How to generate a client certificate
 
